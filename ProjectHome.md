@@ -1,0 +1,1 @@
+Portals SHMEM is an implementation of the [OpenSHMEM Standard](http://openshmem.org/) over the [Portals 4 Networking API](http://code.google.com/p/portals4/).  Portals SHMEM is designed to be a low-overhead implementation of the SHMEM standard which takes advantage of the many features of the Portals 4 specification.
