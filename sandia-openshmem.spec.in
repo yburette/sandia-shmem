@@ -1,0 +1,173 @@
+%{!?configargs: %global configargs %{nil}}
+%{!?testdir: %global testdir %{buildroot}%{_datadir}/%{name}-%{version}/tests}
+
+Name: sandia-openshmem
+Version: @VERSION@
+Release: 1%{?dist}
+Summary: Sandia OpenSHMEM.
+
+Group: OpenSHMEM
+License: BSD
+URL: http://github.com/regrant/sandia-shmem
+Source0: %{name}-%{version}.tar.gz
+
+%description
+Sandia OpenSHMEM.
+
+%package devel
+Summary: Development files for Sandia OpenSHMEM
+Group: System Environment/Libraries
+Requires: %{name} = %{version}
+
+%description devel
+Development files for Sandia OpenSHMEM.
+
+%package tests
+Summary: Tests programs for Sandia OpenSHMEM
+Group: System Environment/Libraries
+Requires: %{name} = %{version}
+
+%description tests
+Tests programs for Sandia OpenSHMEM
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+%configure %{configargs}
+make %{?_smp_mflags}
+# Build tests
+make -C test/unit hello
+make -C test/unit micro_unit_shmem
+make -C test/unit circular_shift
+make -C test/unit accessible_ping
+make -C test/unit max_reduction
+make -C test/unit big_reduction
+make -C test/unit to_all
+make -C test/unit strided_put
+make -C test/unit barrier
+make -C test/unit bcast
+make -C test/unit put1
+make -C test/unit get1
+make -C test/unit swap1
+make -C test/unit ping
+make -C test/unit pingpong
+make -C test/unit shmalloc
+make -C test/unit shrealloc
+make -C test/unit shmemalign
+make -C test/unit get_g
+make -C test/unit iput32
+make -C test/unit iput64
+make -C test/unit iput128
+make -C test/unit iput_short
+make -C test/unit iput_double
+make -C test/unit iput_float
+make -C test/unit iput_long
+make -C test/unit iput_longdouble
+make -C test/unit iput_longlong
+make -C test/unit sping
+make -C test/unit pingpong-short
+make -C test/unit ipgm
+make -C test/unit iput-iget
+make -C test/unit swapm
+make -C test/unit cswap
+make -C test/unit waituntil
+make -C test/unit atomic_inc
+make -C test/unit set_lock
+make -C test/unit test_lock
+make -C test/unit fcollect64
+make -C test/unit bigput
+make -C test/unit bigget
+make -C test/unit ns
+make -C test/unit bcast_flood
+make -C test/unit lfinc
+make -C test/unit mt_a2a
+make -C test/unit shmem_info
+make -C test/unit global_exit
+make -C test/performance NPshmem
+make -C test/performance shmemlatency
+make -C test/performance msgrate
+
+%install
+rm -rf %{buildroot}
+%makeinstall
+# remove unpackaged files from the buildroot
+rm -f %{buildroot}%{_libdir}/*.la
+# Prepare tests
+install -d %{testdir}/unit
+install test/unit/.libs/hello %{testdir}/unit
+install test/unit/.libs/micro_unit_shmem %{testdir}/unit
+install test/unit/.libs/circular_shift %{testdir}/unit
+install test/unit/.libs/accessible_ping %{testdir}/unit
+install test/unit/.libs/max_reduction %{testdir}/unit
+install test/unit/.libs/big_reduction %{testdir}/unit
+install test/unit/.libs/to_all %{testdir}/unit
+install test/unit/.libs/strided_put %{testdir}/unit
+install test/unit/.libs/barrier %{testdir}/unit
+install test/unit/.libs/bcast %{testdir}/unit
+install test/unit/.libs/put1 %{testdir}/unit
+install test/unit/.libs/get1 %{testdir}/unit
+install test/unit/.libs/swap1 %{testdir}/unit
+install test/unit/.libs/ping %{testdir}/unit
+install test/unit/.libs/pingpong %{testdir}/unit
+install test/unit/.libs/shmalloc %{testdir}/unit
+install test/unit/.libs/shrealloc %{testdir}/unit
+install test/unit/.libs/shmemalign %{testdir}/unit
+install test/unit/.libs/get_g %{testdir}/unit
+install test/unit/.libs/iput32 %{testdir}/unit
+install test/unit/.libs/iput64 %{testdir}/unit
+install test/unit/.libs/iput128 %{testdir}/unit
+install test/unit/.libs/iput_short %{testdir}/unit
+install test/unit/.libs/iput_double %{testdir}/unit
+install test/unit/.libs/iput_float %{testdir}/unit
+install test/unit/.libs/iput_long %{testdir}/unit
+install test/unit/.libs/iput_longdouble %{testdir}/unit
+install test/unit/.libs/iput_longlong %{testdir}/unit
+install test/unit/.libs/sping %{testdir}/unit
+install test/unit/.libs/pingpong-short %{testdir}/unit
+install test/unit/.libs/ipgm %{testdir}/unit
+install test/unit/.libs/iput-iget %{testdir}/unit
+install test/unit/.libs/swapm %{testdir}/unit
+install test/unit/.libs/cswap %{testdir}/unit
+install test/unit/.libs/waituntil %{testdir}/unit
+install test/unit/.libs/atomic_inc %{testdir}/unit
+install test/unit/.libs/set_lock %{testdir}/unit
+install test/unit/.libs/test_lock %{testdir}/unit
+install test/unit/.libs/fcollect64 %{testdir}/unit
+install test/unit/.libs/bigput %{testdir}/unit
+install test/unit/.libs/bigget %{testdir}/unit
+install test/unit/.libs/ns %{testdir}/unit
+install test/unit/.libs/bcast_flood %{testdir}/unit
+install test/unit/.libs/lfinc %{testdir}/unit
+install test/unit/.libs/mt_a2a %{testdir}/unit
+install test/unit/.libs/shmem_info %{testdir}/unit
+install test/unit/.libs/global_exit %{testdir}/unit
+install -d %{testdir}/performance
+install test/performance/.libs/NPshmem %{testdir}/performance
+install test/performance/.libs/shmemlatency %{testdir}/performance
+install test/performance/.libs/msgrate %{testdir}/performance
+
+%clean
+rm -rf %{buildroot}
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(-,root,root,-)
+%{_libdir}/lib*.so.*
+%doc LICENSE README NEWS
+
+%files devel
+%defattr(-,root,root)
+%{_bindir}/*
+%{_libdir}/lib*.so
+%{_libdir}/*.a
+%{_includedir}/*
+
+%files tests
+%defattr(-,root,root)
+%{_datadir}/%{name}-%{version}/tests
+
+
+%changelog
